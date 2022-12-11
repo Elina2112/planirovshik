@@ -1,12 +1,12 @@
 import sys
 import PyQt5
 from PyQt5 import QtCore, QtWidgets,QtGui
-from PyQt5.QtCore import Qt, QPoint, QDateTime, QDate, QTime
+from PyQt5.QtCore import Qt, QPoint, QDateTime, QDate, QTime, QRect
 from PyQt5.QtGui import QPainter, QColor
 from random import choice, randint
 from PyQt5.QtSql import QSqlDatabase, QSqlTableModel, QSqlRelationalDelegate
 from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QLineEdit, QComboBox, \
-    QGraphicsOpacityEffect, QDialog, QMessageBox, QTableView, QDateEdit, QDateTimeEdit
+    QGraphicsOpacityEffect, QDialog, QMessageBox, QTableView, QDateEdit, QDateTimeEdit, QListWidgetItem, QListWidget
 from PyQt5.QtGui import QPixmap
 import sqlite3
 
@@ -28,11 +28,46 @@ class Example(QMainWindow):
         super().__init__()
         self.initUI()
     def initUI(self):
+
         self.setGeometry(700, 100, 700, 700)
         self.setWindowTitle('Планировщик на день')
         self.spisokt = QLabel('Список дел', self)
+        #self.spisokt.setStyleSheet("font:12pt;")
         self.spisokt.move(300, 30)
 
+        self.jobs = QListWidget(self)
+        self.jobs.setGeometry(QRect(80, 70, 530, 300))
+        self.jobs.setStyleSheet("font:12pt;")
+        self.jobs.setObjectName("jobs")
+
+
+        self.db = QSqlDatabase.addDatabase("QSQLITE")
+        self.db.setDatabaseName("planirovshik.sqlite")
+        self.db.open()
+        self.view = QTableView(self)
+        self.model = QSqlTableModel(self, self.db)
+        self.model.setTable('Plan')
+        self.model.select()
+        self.view.setModel(self.model)
+        self.view.move(50, 60)
+        self.view.resize(0, 0)
+
+        rows = self.model.rowCount()
+        if not rows:
+            return
+
+        self.jobs.clear()
+
+        for row in range(rows):
+            id = self.model.record(row).value("Id")
+            data = self.model.record(row).value("Data")
+            ts = self.model.record(row).value("Time_start")
+            te = self.model.record(row).value("Time_end")
+            j = self.model.record(row).value("Job")
+            sj = self.model.record(row).value("Status_Job")
+
+
+            self.jobs.addItem(f" {data}  {ts}-{te}  -  {j}  -  {sj}")
 
 
         self.button_0 = QPushButton(self)
