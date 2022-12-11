@@ -33,6 +33,46 @@ class Example(QMainWindow):
         self.spisokt = QLabel('Список дел', self)
         self.spisokt.move(300, 30)
 
+
+
+        self.button_0 = QPushButton(self)
+        self.button_0.move(245, 500)
+        self.button_0.resize(170, 30)
+        self.button_0.setText("Таблица")
+        self.button_0.clicked.connect(self.run0)
+
+        self.button_1 = QPushButton(self)
+        self.button_1.move(245, 550)
+        self.button_1.resize(170, 30)
+        self.button_1.setText("Добавить дело")
+        self.button_1.clicked.connect(self.run1)
+
+        self.button_2 = QPushButton(self)
+        self.button_2.move(245, 600)
+        self.button_2.resize(170, 30)
+        self.button_2.setText("Удалить дело")
+        self.button_2.clicked.connect(self.run2)
+
+    def run0(self):
+        self.w = Window0()
+        self.w.show()
+        self.hide()
+
+    def run1(self):
+        self.w = Window1()
+        self.w.show()
+        self.hide()
+
+    def run2(self):
+        self.w = Window2()
+        self.w.show()
+
+class Window0(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Таблица")
+        self.setGeometry(700, 100, 700, 700)
+
         self.db = QSqlDatabase.addDatabase("QSQLITE")
         self.db.setDatabaseName("planirovshik.sqlite")
         self.db.open()
@@ -47,25 +87,13 @@ class Example(QMainWindow):
         self.button_1 = QPushButton(self)
         self.button_1.move(245, 550)
         self.button_1.resize(170, 30)
-        self.button_1.setText("Добавить дело")
+        self.button_1.setText("Назад")
         self.button_1.clicked.connect(self.run1)
 
-        self.button_2 = QPushButton(self)
-        self.button_2.move(245, 600)
-        self.button_2.resize(170, 30)
-        self.button_2.setText("Удалить дело")
-        self.button_2.clicked.connect(self.run2)
-
     def run1(self):
-        self.w = Window1()
+        self.w = Example()
         self.w.show()
         self.hide()
-
-    def run2(self):
-        self.w = Window2()
-        self.w.show()
-
-
 
 
 class Window1(QMainWindow):
