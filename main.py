@@ -52,6 +52,12 @@ class Example(QMainWindow):
         self.view.move(50, 60)
         self.view.resize(0, 0)
 
+      #  db = sqlite3.connect("planirovshik.sqlite")
+        cur.execute('''SELECT * from Plan ''')
+        conn.commit()
+        results = cur.fetchall()
+
+
         rows = self.model.rowCount()
         if not rows:
             return
@@ -66,15 +72,32 @@ class Example(QMainWindow):
             j = self.model.record(row).value("Job")
             sj = self.model.record(row).value("Status_Job")
 
-
-            self.jobs.addItem(f" {data}  {ts}-{te}  -  {j}  -  {sj}")
-
+            for result in results:
+                item = QListWidgetItem(f" {data}  {ts}-{te}  -  {j}  -  {sj}")
+                item.setFlags(item.flags() | QtCore.Qt.ItemIsUserCheckable)
+                if result[5] == "Выполнено":
+                    item.setCheckState(QtCore.Qt.Checked)
+                elif result[5] == "Не выполнено":
+                    item.setCheckState(QtCore.Qt.Unchecked)
+                self.jobs.addItem(item)
 
         self.button_0 = QPushButton(self)
-        self.button_0.move(245, 500)
+        self.button_0.move(245, 450)
         self.button_0.resize(170, 30)
-        self.button_0.setText("Таблица")
+        self.button_0.setText("Обновить данные")
         self.button_0.clicked.connect(self.run0)
+
+      #  self.button_0 = QPushButton(self)
+      #  self.button_0.move(245, 450)
+      #  self.button_0.resize(170, 30)
+      #  self.button_0.setText("Таблица")
+      #  self.button_0.clicked.connect(self.run0)
+
+        self.button_3 = QPushButton(self)
+        self.button_3.move(245, 500)
+        self.button_3.resize(170, 30)
+        self.button_3.setText("Сохранить изменения")
+        self.button_3.clicked.connect(self.run3)
 
         self.button_1 = QPushButton(self)
         self.button_1.move(245, 550)
@@ -89,7 +112,7 @@ class Example(QMainWindow):
         self.button_2.clicked.connect(self.run2)
 
     def run0(self):
-        self.w = Window0()
+        self.w = Example()
         self.w.show()
         self.hide()
 
@@ -102,33 +125,60 @@ class Example(QMainWindow):
         self.w = Window2()
         self.w.show()
 
-class Window0(QMainWindow):
-    def __init__(self):
-        super().__init__()
-        self.setWindowTitle("Таблица")
-        self.setGeometry(700, 100, 700, 700)
-
-        self.db = QSqlDatabase.addDatabase("QSQLITE")
-        self.db.setDatabaseName("planirovshik.sqlite")
-        self.db.open()
-        self.view = QTableView(self)
-        self.model = QSqlTableModel(self, self.db)
-        self.model.setTable('Plan')
-        self.model.select()
-        self.view.setModel(self.model)
-        self.view.move(50, 60)
-        self.view.resize(600, 300)
-
-        self.button_1 = QPushButton(self)
-        self.button_1.move(245, 550)
-        self.button_1.resize(170, 30)
-        self.button_1.setText("Назад")
-        self.button_1.clicked.connect(self.run1)
-
-    def run1(self):
-        self.w = Example()
+    def run3(self):
+        self.w=Example()
         self.w.show()
         self.hide()
+
+        cur.execute('''SELECT * from Plan ''')
+        conn.commit()
+        results = cur.fetchall()
+
+        rows = self.model.rowCount()
+        if not rows:
+            return
+
+        for i in range(self.jobs.count()):
+            item = self.jobs.item(i)
+            #task = item.text()
+            if item.checkState() == QtCore.Qt.Checked:
+                query = "UPDATE Plan SET Status_Job = 'Выполнено'"
+            else:
+                query = "UPDATE Plan SET Status_Job = 'Не выполнено' "
+
+            cur.execute(query)
+        conn.commit()
+
+
+#class Window0(QMainWindow):
+#    def __init__(self):
+#       super().__init__()
+
+
+       # self.setWindowTitle("Таблица")
+       # self.setGeometry(700, 100, 700, 700)
+
+       # self.db = QSqlDatabase.addDatabase("QSQLITE")
+       # self.db.setDatabaseName("planirovshik.sqlite")
+       # self.db.open()
+       # self.view = QTableView(self)
+       # self.model = QSqlTableModel(self, self.db)
+       # self.model.setTable('Plan')
+       # self.model.select()
+       # self.view.setModel(self.model)
+       # self.view.move(50, 60)
+       # self.view.resize(600, 300)
+
+       # self.button_1 = QPushButton(self)
+       # self.button_1.move(245, 550)
+       # self.button_1.resize(170, 30)
+       # self.button_1.setText("Назад")
+       # self.button_1.clicked.connect(self.run1)
+
+ #   def run1(self):
+ #       self.w = Example()
+ #       self.w.show()
+ #       self.hide()
 
 
 class Window1(QMainWindow):
@@ -173,10 +223,10 @@ class Window1(QMainWindow):
         self.job.move(300, 300)
         self.job.resize(170, 30)
 
-        self.status_jobt = QLabel('Выполнено/Невыполнено', self)
+        self.status_jobt = QLabel('Выполнено/Не выполнено', self)
         self.status_jobt.move(300, 330)
         self.status_job = QLineEdit(self)
-        self.status_job.setObjectName("Выполнено/Невыполнено")
+        self.status_job.setObjectName("Выполнено/Не выполнено")
         self.status_job.move(300, 360)
         self.status_job.resize(170, 30)
 
