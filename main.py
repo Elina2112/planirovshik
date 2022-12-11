@@ -54,12 +54,19 @@ class Example(QMainWindow):
         self.button_2.move(245, 600)
         self.button_2.resize(170, 30)
         self.button_2.setText("Удалить дело")
-        # self.button_1.clicked.connect(self.run2)
+        self.button_2.clicked.connect(self.run2)
 
     def run1(self):
         self.w = Window1()
         self.w.show()
         self.hide()
+
+    def run2(self):
+        self.w = Window2()
+        self.w.show()
+
+
+
 
 class Window1(QMainWindow):
     def __init__(self):
@@ -149,6 +156,41 @@ class Window1(QMainWindow):
             conn.commit()
 
     def run2(self):
+        self.w = Example()
+        self.w.show()
+        self.hide()
+
+class Window2(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.setWindowTitle("Удаление данных")
+        self.setGeometry(750, 300, 500, 400)
+
+        self.idt = QLabel('Выбери ID строки, которую нужно удалить', self)
+        self.idt.move(120, 30)
+        self.idt.resize(260, 30)
+        self.id = QLineEdit(self)
+        self.id.move(170, 60)
+        self.id.resize(170, 30)
+
+        self.button_1 = QPushButton(self)
+        self.button_1.move(170, 240)
+        self.button_1.resize(170, 30)
+        self.button_1.setText("Удалить")
+        self.button_1.clicked.connect(self.run1)
+
+    def run1(self):
+        i = str(self.id.text())
+
+        cur.execute('''DELETE from Plan where Id = ?''', (i))
+        conn.commit()
+        print("Успешно удалено")
+        msg = QMessageBox()
+        msg.setWindowTitle("Успешно")
+        msg.setText("Успешно удалено")
+        msg.setIcon(QMessageBox.Information)
+        msg.exec_()
+
         self.w = Example()
         self.w.show()
         self.hide()
